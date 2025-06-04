@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tracce Trekking GPS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    #map { height: 90vh; width: 100vw; }
+    #menu {
+      padding: 10px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #ccc;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .percorso {
+      display: inline-block;
+      margin: 5px 10px;
+      cursor: pointer;
+      color: blue;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="menu"></div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-gpx@1.7.0/gpx.min.js"></script>
+  <script>
+    const mappa = L.map('map').setView([42.5, 12.0], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 18,
+    }).addTo(mappa);
+
+    // Attiva GPS utente
+    mappa.locate({setView: true, maxZoom: 13});
+    function onLocationFound(e) {
+      L.marker(e.latlng).addTo(mappa).bindPopup("Sei qui").openPopup();
+    }
+    mappa.on('locationfound', onLocationFound);
+
+    const percorsi = [
+      { nome: "Anello Blera – Sentiero delle Mole", file: "tracce/Anello Blera-Barbarano- Sentiero delle Mole-.gpx" },
+      { nome: "Castel Giuliano", file: "tracce/Castel guiliano corretto.gpx" },
+      { nome: "Eremo San Leonardo – Vallerano", file: "tracce/Eremo San Leonardo Vallerano.gpx" },
+      { nome: "Forchetta del Diavolo – Monte Leano", file: "tracce/Forchetta del Diavolo- Monte Leano.gpx" },
+      { nome: "Infernaccio", file: "tracce/Infernaccio.gpx" },
+      { nome: "Monte Palanzana", file: "tracce/Monte Palanzana.gpx" },
+      { nome: "Parco Manuterum – CAI 103-138b-105", file: "tracce/Parco Manuterum Sentiero CAI 103-138b-105.gpx" },
+      { nome: "Parco del Timone – Cellere", file: "tracce/Parco del Timone Cellere.gpx" },
+      { nome: "Eremo di Poggio Conte", file: "tracce/Percorso_eremno_di_poggiio_conte.gpx" }
+    ];
+
+    const menu = document.getElementById('menu');
+
+    percorsi.forEach(p => {
+      const link = document.createElement('div');
+      link.className = 'percorso';
+      link.innerHTML = `${p.nome}`;
+      link.onclick = () => {
+        if (window.currentTrack) mappa.removeLayer(window.currentTrack);
+        const gpx = new L.GPX(p.file, {
+          async: true,
+          marker_options: {
+            startIconUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-icon-start.png',
+            endIconUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-icon-end.png',
+            shadowUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-shadow.png'
+          }
+        }).on('loaded', function(e) {
+          mappa.fitBounds(e.target.getBounds());
+        }).addTo(mappa);
+        window.currentTrack = gpx;
+      };
+      menu.appendChild(link);
+    });
+  </script>
+</body>
+</html>
