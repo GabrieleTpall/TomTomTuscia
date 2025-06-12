@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
   <meta charset="utf-8">
   <title>Tracce Trekking GPS</title>
@@ -9,18 +9,30 @@
     body { margin: 0; font-family: sans-serif; }
     #map { height: 90vh; width: 100vw; }
     #menu {
-      padding: 10px;
-      background: #f8f8f8;
-      border-bottom: 1px solid #ccc;
+      display: flex;
+      flex-wrap: nowrap;
       overflow-x: auto;
-      white-space: nowrap;
+      padding: 10px;
+      background: #f0f0f0;
+      border-bottom: 1px solid #ccc;
     }
     .percorso {
-      display: inline-block;
-      margin: 5px 10px;
+      margin: 0 10px;
+      white-space: nowrap;
+    }
+    .percorso button {
+      background: #007bff;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
       cursor: pointer;
-      color: blue;
-      text-decoration: underline;
+    }
+    .percorso a {
+      margin-left: 6px;
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -31,39 +43,40 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet-gpx@1.7.0/gpx.min.js"></script>
   <script>
-    const mappa = L.map('map').setView([42.5, 12.0], 8);
+    const map = L.map('map').setView([42.5, 12.0], 8);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
+      attribution: '© OpenStreetMap contributors',
       maxZoom: 18,
-    }).addTo(mappa);
+    }).addTo(map);
 
-    // Attiva GPS utente
-    mappa.locate({setView: true, maxZoom: 13});
-    function onLocationFound(e) {
-      L.marker(e.latlng).addTo(mappa).bindPopup("Sei qui").openPopup();
-    }
-    mappa.on('locationfound', onLocationFound);
+    // GPS utente
+    map.locate({ setView: true, maxZoom: 13 });
+    map.on('locationfound', e => {
+      L.marker(e.latlng).addTo(map).bindPopup("Sei qui").openPopup();
+    });
 
     const percorsi = [
-      { nome: "Anello Blera – Sentiero delle Mole", file: "tracce/Anello Blera-Barbarano- Sentiero delle Mole-.gpx" },
-      { nome: "Castel Giuliano", file: "tracce/Castel guiliano corretto.gpx" },
-      { nome: "Eremo San Leonardo – Vallerano", file: "tracce/Eremo San Leonardo Vallerano.gpx" },
-      { nome: "Forchetta del Diavolo – Monte Leano", file: "tracce/Forchetta del Diavolo- Monte Leano.gpx" },
+      { nome: "Anello Blera – Sentiero delle Mole", file: "tracce/Anello_Blera-Barbarano_Sentiero_delle_Mole.gpx" },
+      { nome: "Castel Giuliano", file: "tracce/Castel_Giuliano.gpx" },
+      { nome: "Eremo San Leonardo – Vallerano", file: "tracce/Eremo_San_Leonardo_Vallerano.gpx" },
+      { nome: "Forchetta del Diavolo – Monte Leano", file: "tracce/Forchetta_del_Diavolo_Monte_Leano.gpx" },
       { nome: "Infernaccio", file: "tracce/Infernaccio.gpx" },
-      { nome: "Monte Palanzana", file: "tracce/Monte Palanzana.gpx" },
-      { nome: "Parco Manuterum – CAI 103-138b-105", file: "tracce/Parco Manuterum Sentiero CAI 103-138b-105.gpx" },
-      { nome: "Parco del Timone – Cellere", file: "tracce/Parco del Timone Cellere.gpx" },
-      { nome: "Eremo di Poggio Conte", file: "tracce/Percorso_eremno_di_poggiio_conte.gpx" }
+      { nome: "Monte Palanzana", file: "tracce/Monte_Palanzana.gpx" },
+      { nome: "Parco Manuterum – CAI 103-138b-105", file: "tracce/Parco_Manuterum_CAI_103-138b-105.gpx" },
+      { nome: "Parco del Timone – Cellere", file: "tracce/Parco_del_Timone_Cellere.gpx" },
+      { nome: "Eremo di Poggio Conte", file: "tracce/Eremo_di_Poggio_Conte.gpx" }
     ];
 
     const menu = document.getElementById('menu');
 
     percorsi.forEach(p => {
-      const link = document.createElement('div');
-      link.className = 'percorso';
-      link.innerHTML = `${p.nome}`;
-      link.onclick = () => {
-        if (window.currentTrack) mappa.removeLayer(window.currentTrack);
+      const item = document.createElement('div');
+      item.className = 'percorso';
+
+      const button = document.createElement('button');
+      button.textContent = p.nome;
+      button.onclick = () => {
+        if (window.currentTrack) map.removeLayer(window.currentTrack);
         const gpx = new L.GPX(p.file, {
           async: true,
           marker_options: {
@@ -72,11 +85,19 @@
             shadowUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-shadow.png'
           }
         }).on('loaded', function(e) {
-          mappa.fitBounds(e.target.getBounds());
-        }).addTo(mappa);
+          map.fitBounds(e.target.getBounds());
+        }).addTo(map);
         window.currentTrack = gpx;
       };
-      menu.appendChild(link);
+
+      const download = document.createElement('a');
+      download.href = p.file;
+      download.download = '';
+      download.textContent = '⬇';
+
+      item.appendChild(button);
+      item.appendChild(download);
+      menu.appendChild(item);
     });
   </script>
 </body>
