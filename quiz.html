@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Quiz ASL</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  #quiz {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+  }
+  h1 {
+    color: #333;
+  }
+  .option {
+    display: block;
+    margin: 10px 0;
+    background: #e0e0ff;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #next {
+    display: none;
+    background-color: #008CBA;
+  }
+  #result {
+    font-weight: bold;
+    margin-top: 15px;
+  }
+</style>
+</head>
+<body>
+<div id="quiz">
+  <h1>Quiz sulla ASL</h1>
+  <div id="question"></div>
+  <div id="options"></div>
+  <button id="check">Conferma</button>
+  <button id="next">Avanti</button>
+  <div id="result"></div>
+</div>
+
+<script>
+const quiz = [
+  {
+    q: "Cosa significa la sigla ASL?",
+    options: [
+      "Assistenza Sanitaria Locale",
+      "Azienda Sanitaria Locale",
+      "Associazione Servizi Locali",
+      "Azienda Socio Locale"
+    ],
+    correct: 1
+  },
+  {
+    q: "Chi gestisce le ASL?",
+    options: [
+      "Ministero della Salute",
+      "La Regione",
+      "Il Comune",
+      "Il Parlamento"
+    ],
+    correct: 1
+  },
+  {
+    q: "Quale servizio non viene offerto dall'ASL?",
+    options: [
+      "Vaccinazioni",
+      "Servizi veterinari",
+      "Educazione stradale",
+      "Medicina preventiva"
+    ],
+    correct: 2
+  },
+  {
+    q: "Dove si richiede la tessera sanitaria?",
+    options: [
+      "Presso l'ASL",
+      "In farmacia",
+      "Al Comune",
+      "All'ufficio postale"
+    ],
+    correct: 0
+  },
+  {
+    q: "Qual è il numero di emergenza sanitaria in Italia?",
+    options: ["113","115","118","112"],
+    correct: 2
+  }
+];
+let current = 0;
+let selected = null;
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+const resultEl = document.getElementById('result');
+const checkBtn = document.getElementById('check');
+const nextBtn = document.getElementById('next');
+
+function loadQuestion() {
+  const q = quiz[current];
+  questionEl.textContent = q.q;
+  optionsEl.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.textContent = opt;
+    div.onclick = () => {
+      const prev = optionsEl.querySelector('.selected');
+      if (prev) prev.classList.remove('selected');
+      div.classList.add('selected');
+      selected = i;
+    };
+    optionsEl.appendChild(div);
+  });
+  resultEl.textContent = '';
+  nextBtn.style.display = 'none';
+}
+
+checkBtn.onclick = () => {
+  if (selected === null) return;
+  if (selected === quiz[current].correct) {
+    resultEl.textContent = 'Corretto!';
+    nextBtn.style.display = 'inline-block';
+  } else {
+    resultEl.textContent = 'Risposta sbagliata, riprova.';
+  }
+};
+
+nextBtn.onclick = () => {
+  current++;
+  if (current < quiz.length) {
+    selected = null;
+    loadQuestion();
+  } else {
+    questionEl.textContent = 'Quiz completato!';
+    optionsEl.innerHTML = '';
+    checkBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    resultEl.textContent = 'Complimenti!';
+  }
+};
+
+loadQuestion();
+</script>
+</body>
+</html>
